@@ -17,6 +17,45 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         setUI()
         
+        /**
+         DispatchQueue.global().async {
+             
+         }
+         let time = Timer(fireAt: Date(), interval: 5, target: self, selector: #selector(self.jjj), userInfo: nil, repeats: true)
+         RunLoop.current.add(time, forMode: .common)
+         //RunLoop.current.run()
+         time.fire()
+         //time.fire()
+         //time.fire()
+         print("开始。。。")
+         
+         //1.定时器在主线程 正常重复执行
+         //2.定时器在全局异步线程中 不能正常重置执行
+         //2.1 加入RunLoop.current.run() 可以重复但是后面代码不执行
+         //2.2 fire只会执行一次
+         //2.2 fire只会执行一次
+         //所以服务器端这块暂时这样吧
+         
+         
+         DispatchQueue.global().async {
+             let time = Timer(timeInterval: 1, target: self, selector: #selector(self.jjj), userInfo: nil, repeats: true)
+             RunLoop.current.add(time, forMode: .default)
+             RunLoop.current.run(mode: .default, before: Date.distantPast)
+             
+             print("继续执行")
+             print("继续执行")
+             print("继续执行")
+             
+             RunLoop.current.run()
+         }
+         
+         这边是.comment都不行  得defalut
+         */
+        
+    }
+    
+    @objc fileprivate func jjj () {
+        print("jjjjj")
     }
 }
 
@@ -90,4 +129,8 @@ extension ViewController {
         }
     }
 }
+
+
+
+
 

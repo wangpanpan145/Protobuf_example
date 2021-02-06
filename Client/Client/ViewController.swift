@@ -4,6 +4,13 @@
 //
 //  Created by mac on 2021/2/3.
 //
+/**
+ 1.获取到服务区对应的IP、端口号
+ 2.使用Socket，通过IP、端口号和服务器建立连接
+ 3.开启定时器，实时让服务器发送心跳包
+ 4.通过sendMsg，给服务器发送消息：字节流 ---> heartData(消息的长度）+typeData（消息类型）+msgData（真正消息）
+ 5.读取服务器传送过来的消息（开启子线程）
+ */
 
 import UIKit
 
@@ -15,9 +22,15 @@ class ViewController: UIViewController {
     //服务器
     //fileprivate lazy var socket: HYSocket = HYSocket(addr: "0.0.0.0", port: 9000)
     fileprivate lazy var socket: HYSocket = HYSocket()
+    //定时器
+    fileprivate var timer: Timer!
     override func viewDidLoad() {
         super.viewDidLoad()
         setUI()
+    }
+    deinit {
+        timer.invalidate()
+        timer = nil
     }
 }
  
@@ -79,6 +92,8 @@ extension ViewController {
             
             if socket.connectServer() {
                 socket.startReadMsg()
+                timer = Timer(fireAt: Date(), interval: 9, target: self, selector: #selector(sendHeartBeat), userInfo: nil, repeats: true)
+                RunLoop.main.add(timer, forMode: .common)
             }
         case 1:
             if self.closeButton!.isSelected {
@@ -89,6 +104,9 @@ extension ViewController {
             self.closeButton?.isSelected = true
             
             socket.closeServer()
+            
+            timer.invalidate()
+            timer = nil
         default:
             print("lll")
         }
@@ -100,51 +118,10 @@ extension ViewController {
         //socket.sendTextMsg(message: "nihao")
         socket.sendGifMessage(gifName: "火箭", gifUrl: "gif图", giftCount: 3)
     }
-    
+}
+extension ViewController {
+    @objc fileprivate func sendHeartBeat() {
+        socket.sendHeartBeat()
+    }
 }
 
-
-
-
-
-
-
-
-
-/**
- override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-     //字符串
-     //let content: String = "进入房间"
-     //let contentData: Data = content.data(using: .utf8)!
-     
-     //字典
-     //let content: [String:Any] = ["name":"wpp","age":"20"]
-     //let contentData = (try?JSONSerialization.data(withJSONObject: content, options: []))!
-     
-     //buffer
-     var info = UserInfo()
-     info.name = "wpp"
-     info.level = 2
-     info.iconURL = "https://xxxxx.jpeg"
-     let contentData:Data = try! info.serializedData()
-     
-     
-     
-     //1.获取消息长度 写入到data
-     var count = contentData.count
-     let countData = Data(bytes: &count, count: 4)
-     print(count,countData)
-     
-     //2.消息类型
-     var type = 1
-     let typeData = Data(bytes: &type, count: 2)
-     print(type,typeData)
-     
-     //3.消息汇总
-     let totalData = countData + typeData + contentData
-     print(totalData)
-     
-     socket.sendMsg(data: totalData)
-     //socket.sendMsg(str: content)
- }
- */

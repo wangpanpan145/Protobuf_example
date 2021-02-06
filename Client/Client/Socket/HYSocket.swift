@@ -129,6 +129,11 @@ extension HYSocket {
         sendMsg(contentData: giftData, type: 3)
         
     }
+    func sendHeartBeat () {
+        let heartString = "I am is heart beat"
+        let heartData = heartString.data(using: .utf8)!
+        sendMsg(contentData: heartData, type: 100)
+    }
     func sendMsg(contentData: Data, type: Int) {
         
         //1.获取消息长度 写入到data

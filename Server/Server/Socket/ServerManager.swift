@@ -55,10 +55,12 @@ extension ServerManager {
 
 extension ServerManager : ClientManagerDelete {
     func sendMsgToClient(data: Data) {
-        print("回调啦 ServerManager")
         for mgr in clientMrgs {
-            print("主动回调。。。")
             mgr.tcpClient.send(data: data)
         }
+    }
+    func removeClient(client: ClientManager) {
+        guard let index = clientMrgs.firstIndex(of: client) else { return  }
+        clientMrgs.remove(at: index)
     }
 }
