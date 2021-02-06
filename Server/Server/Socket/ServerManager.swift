@@ -49,5 +49,16 @@ extension ServerManager {
         let mgr: ClientManager = ClientManager(tcpClient: tcpClient)
         clientMrgs.append(mgr)
         mgr.startReadMsg()
+        mgr.delete = self
+    }
+}
+
+extension ServerManager : ClientManagerDelete {
+    func sendMsgToClient(data: Data) {
+        print("回调啦 ServerManager")
+        for mgr in clientMrgs {
+            print("主动回调。。。")
+            mgr.tcpClient.send(data: data)
+        }
     }
 }

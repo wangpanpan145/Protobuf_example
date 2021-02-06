@@ -63,7 +63,7 @@ open class TCPClient:YSocket{
     * close socket
     * return success or fail with message
     */
-    open func close()->(Bool,String){
+    @discardableResult open func close()->(Bool,String){
         if let fd:Int32=self.fd{
             _ = c_ytcpsocket_close(fd)
             self.fd=nil

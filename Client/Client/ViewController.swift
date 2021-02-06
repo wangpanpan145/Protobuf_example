@@ -77,7 +77,9 @@ extension ViewController {
             self.startButton?.isSelected = true
             self.closeButton?.isSelected = false
             
-            socket.connectServer()
+            if socket.connectServer() {
+                socket.startReadMsg()
+            }
         case 1:
             if self.closeButton!.isSelected {
                 return
@@ -93,40 +95,12 @@ extension ViewController {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        //字符串
-        //let content: String = "进入房间"
-        //let contentData: Data = content.data(using: .utf8)!
-        
-        //字典
-        //let content: [String:Any] = ["name":"wpp","age":"20"]
-        //let contentData = (try?JSONSerialization.data(withJSONObject: content, options: []))!
-        
-        //buffer
-        var info = UserInfo()
-        info.name = "wpp"
-        info.level = 2
-        info.iconURL = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg9.doubanio.com%2Fview%2Fgroup_topic%2Fl%2Fpublic%2Fp244659466.jpg&refer=http%3A%2F%2Fimg9.doubanio.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1615088604&t=3e7b2685445f3114524e90841ac6033c"
-        let contentData:Data = try! info.serializedData()
-        
-        
-        
-        //1.获取消息长度 写入到data
-        var count = contentData.count
-        let countData = Data(bytes: &count, count: 4)
-        print(count,countData)
-        
-        //2.消息类型
-        var type = 1
-        let typeData = Data(bytes: &type, count: 2)
-        print(type,typeData)
-        
-        //3.消息汇总
-        let totalData = countData + typeData + contentData
-        print(totalData)
-        
-        socket.sendMsg(data: totalData)
-        //socket.sendMsg(str: content)
+        //socket.sendJoinRoom()
+        //socket.sendLeaveRoom()
+        //socket.sendTextMsg(message: "nihao")
+        socket.sendGifMessage(gifName: "火箭", gifUrl: "gif图", giftCount: 3)
     }
+    
 }
 
 
@@ -137,4 +111,40 @@ extension ViewController {
 
 
 
-
+/**
+ override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+     //字符串
+     //let content: String = "进入房间"
+     //let contentData: Data = content.data(using: .utf8)!
+     
+     //字典
+     //let content: [String:Any] = ["name":"wpp","age":"20"]
+     //let contentData = (try?JSONSerialization.data(withJSONObject: content, options: []))!
+     
+     //buffer
+     var info = UserInfo()
+     info.name = "wpp"
+     info.level = 2
+     info.iconURL = "https://xxxxx.jpeg"
+     let contentData:Data = try! info.serializedData()
+     
+     
+     
+     //1.获取消息长度 写入到data
+     var count = contentData.count
+     let countData = Data(bytes: &count, count: 4)
+     print(count,countData)
+     
+     //2.消息类型
+     var type = 1
+     let typeData = Data(bytes: &type, count: 2)
+     print(type,typeData)
+     
+     //3.消息汇总
+     let totalData = countData + typeData + contentData
+     print(totalData)
+     
+     socket.sendMsg(data: totalData)
+     //socket.sendMsg(str: content)
+ }
+ */

@@ -7,8 +7,16 @@
 
 import UIKit
 
+
+protocol ClientManagerDelete : class {
+    func sendMsgToClient(data: Data)
+}
+
 class ClientManager: NSObject {
     var tcpClient: TCPClient
+    fileprivate var isClientConnected: Bool = false
+    weak var delete: ClientManagerDelete?
+    
     init(tcpClient: TCPClient) {
         self.tcpClient = tcpClient
         super.init()
@@ -18,8 +26,9 @@ class ClientManager: NSObject {
 extension ClientManager {
     func startReadMsg() {
         print("开始新客户端")
+        isClientConnected = true
         DispatchQueue.global().async {
-            while true {
+            while self.isClientConnected {
                 if let countBytes = self.tcpClient.read(4) {
                     /**
                      [228, 189, 160, 229, 165, 189]
@@ -50,32 +59,44 @@ extension ClientManager {
                     let contentData = Data(bytes: contentBytes, count: count)
                     
                     //buffer
-                    let decodedInfo = try! UserInfo(serializedData: contentData)
-                    print("buffer")
-                    print(decodedInfo,decodedInfo.name)
-                    
-                    //字符串
-                    let content0 = String(data: contentData, encoding: .utf8)
-                    print(content0 ?? "空字符串",contentBytes,contentData)
-                    //字典
-                    let content = String(data: contentData, encoding: .utf8)
-                    print(content ?? "空字符串",contentBytes,contentData)
-                    
-                    if true {
-                        let content = try? JSONSerialization.jsonObject(with: contentData, options: .mutableContainers)
-                        guard let json = content else { return  }
-                        print(json)
-                        let dic = json as! Dictionary<String,Any>
-                        print(dic)
-                        for i in dic {
-                            print(i.key,i.value)
-                        }
+                    switch type {
+                    case 0,1:
+                        let decodedInfo = try! UserInfo(serializedData: contentData)
+                        print(decodedInfo,decodedInfo.name)
+                    case 2:
+                        let decodedInfo = try! ChatMessage(serializedData: contentData)
+                        print(decodedInfo,decodedInfo.text)
+                    default:
+                        print("未知消息")
                     }
                     
+                    /**
+                     //字符串
+                     let content0 = String(data: contentData, encoding: .utf8)
+                     print(content0 ?? "空字符串",contentBytes,contentData)
+                     
+                     //字典
+                     if true {
+                         let content = try? JSONSerialization.jsonObject(with: contentData, options: .mutableContainers)
+                         guard let json = content else { return  }
+                         print(json)
+                         let dic = json as! Dictionary<String,Any>
+                         print(dic)
+                         for i in dic {
+                             print(i.key,i.value)
+                         }
+                     }
+                     
+                     */
                     
-                
-                    
-                    
+                    //回调返回同样数据
+                    print("回调啊。。。。。")
+                    let totalData = countData + typeData + contentData
+                    self.delete?.sendMsgToClient(data: totalData)
+                } else {
+                    print("客户端断开了连接")
+                    self.isClientConnected = false
+                    self.tcpClient.close()
                 }
             }
         }
